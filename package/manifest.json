@@ -1,0 +1,9 @@
+{
+  "name": "DeathNotices",
+  "version_number": "0.1.0",
+  "website_url": "https://github.com/holyfurries/death-notices",
+  "description": "Announces player deaths with supported damage causes and attacker names. Solo/co-op, IL2CPP. Install on every player. Unknown causes use a simple death notice.",
+  "dependencies": [
+    "LavaGang-MelonLoader-0.7.3"
+  ]
+}
