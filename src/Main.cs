@@ -12,7 +12,7 @@ using Il2CppScheduleOne.Vehicles;
 using MelonLoader;
 using UnityEngine;
 
-[assembly: MelonInfo(typeof(DeathNotices.Main), "Death Notices", "0.1.0", "holyfurries")]
+[assembly: MelonInfo(typeof(DeathNotices.Main), "Death Notices", "0.2.0", "holyfurries")]
 [assembly: MelonGame("TVGS", "Schedule I")]
 
 namespace DeathNotices;
@@ -35,11 +35,12 @@ public sealed class Main : MelonMod
     private float next_tick_seconds;
     private float next_notice_seconds;
     private bool? logged_host;
-    private static bool ready => running && !failed && LoadManager.InstanceExists && LoadManager.Instance.IsGameLoaded;
+    internal static bool ready => running && !failed && LoadManager.InstanceExists && LoadManager.Instance.IsGameLoaded;
 
     public override void OnInitializeMelon()
     {
         for (int i = 0; i < players.Length; i++) players[i] = new PlayerState();
+        CasinoNotices.install(HarmonyInstance);
         HarmonyInstance.Patch(AccessTools.Method(typeof(Player), "RpcLogic___ReceiveImpact_427288424"),
             prefix: new HarmonyMethod(typeof(Main), nameof(observe_impact)));
         HarmonyInstance.Patch(AccessTools.Method(typeof(PlayerHealth), "RpcLogic___TakeDamage_3505310624"),
@@ -76,6 +77,7 @@ public sealed class Main : MelonMod
             state.tracker.reset(alive: true);
         }
         notices.reset();
+        CasinoNotices.reset();
         failed = false;
         logged_host = null;
         next_tick_seconds = 0;
@@ -114,13 +116,13 @@ public sealed class Main : MelonMod
                 if (state == null) continue;
                 if (player.Health.IsAlive)
                 {
-                    if (state.tracker.is_dead) state.tracker.reset(alive: true);
+                    if (state.tracker.is_dead) state.tracker.revive();
                 }
                 else announce(state);
             }
             if (Time.unscaledTime < next_notice_seconds || !NotificationsManager.InstanceExists) return;
-            if (!notices.try_take(Time.unscaledTime, out string message)) return;
-            NotificationsManager.Instance.SendNotification("Death notice", message, null, 6f, false);
+            if (!notices.try_take(Time.unscaledTime, out string message, out string title)) return;
+            NotificationsManager.Instance.SendNotification(title, message, null, 6f, false);
             next_notice_seconds = Time.unscaledTime + 0.5f;
         }
         catch (Exception error) { disable(error); }
@@ -160,6 +162,7 @@ public sealed class Main : MelonMod
             };
             string attacker = "";
             bool self_inflicted = false;
+            AttackerKind attacker_kind = AttackerKind.Unknown;
             var source = __0.ImpactSource;
             if (source != null)
             {
@@ -174,13 +177,22 @@ public sealed class Main : MelonMod
                 }
                 if (source_player != null)
                 {
+                    attacker_kind = AttackerKind.Player;
                     self_inflicted = source_player == __instance;
                     attacker = DeathTracker.safe_name(source_player.PlayerName);
                 }
-                else if (police != null) attacker = "police";
-                else if (npc != null) attacker = DeathTracker.safe_name(npc.FullName);
+                else if (police != null)
+                {
+                    attacker_kind = AttackerKind.Police;
+                    attacker = "police";
+                }
+                else if (npc != null)
+                {
+                    attacker_kind = AttackerKind.NPC;
+                    attacker = DeathTracker.safe_name(npc.FullName);
+                }
             }
-            state.tracker.observe_impact(__0.ImpactID, __0.ImpactDamage, new DeathCause(kind, attacker, self_inflicted), Time.unscaledTime);
+            state.tracker.observe_impact(__0.ImpactID, __0.ImpactDamage, new DeathCause(kind, attacker, self_inflicted, attacker_kind), Time.unscaledTime);
         }
         catch (Exception error) { disable(error); }
     }
@@ -235,15 +247,20 @@ public sealed class Main : MelonMod
     private static void after_revive(PlayerHealth __instance)
     {
         if (!ready || __instance.Player == null || !__instance.IsAlive) return;
-        try { get_player(__instance.Player)?.tracker.reset(alive: true); }
+        try { get_player(__instance.Player)?.tracker.revive(); }
         catch (Exception error) { disable(error); }
     }
 
     private static void announce(PlayerState state)
     {
-        if (state.player == null || !state.tracker.try_death(state.player.PlayerName, Time.unscaledTime, state.current_damage, out string message)) return;
-        notices.add(message, Time.unscaledTime);
+        if (state.player == null || !state.tracker.try_death(state.player.PlayerName, Time.unscaledTime, state.current_damage, System.Random.Shared.Next(8), out string message)) return;
+        queue_notice("Death notice", message);
         MelonLogger.Msg($"Death Notices: {message}");
+    }
+
+    internal static void queue_notice(string title, string message)
+    {
+        notices.add(message, Time.unscaledTime, title);
     }
 
     private static void disable(Exception error)
