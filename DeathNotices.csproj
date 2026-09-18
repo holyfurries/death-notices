@@ -4,6 +4,7 @@
     <AssemblyName>DeathNotices</AssemblyName>
     <Version>0.2.0</Version>
     <Nullable>enable</Nullable>
+    <PathMap>$(MSBuildProjectDirectory)=/_/</PathMap>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
   </PropertyGroup>
   <ItemGroup>
