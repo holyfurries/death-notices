@@ -20,7 +20,8 @@ Each player's total is kept across sessions and saves in their local mod-manager
 under `UserData/DeathNoticesCasino`. Old gambling history cannot be recovered. Switching
 profiles starts a separate record unless that folder is copied too.
 
-Notifications last six seconds. The mod does not change payouts, odds, or player money.
+Notices appear at the top centre of the screen, wrap to show the whole message, and last
+seven seconds. The mod does not change payouts, odds, or player money.
 
 ## Installation
 

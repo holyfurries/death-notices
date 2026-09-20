@@ -1,6 +1,6 @@
 # Development
 
-Version 0.2.0, built against local Schedule I 0.4.6f13 IL2CPP interop assemblies.
+Version 0.2.1, built against local Schedule I 0.4.6f13 IL2CPP interop assemblies.
 
 ## Event handling
 
@@ -18,7 +18,7 @@ hooks establish one announcement per life; a 0.25-second alive-state poll is a f
 Players already dead when first observed are initialized silently. Sixteen identity-keyed
 player slots clear on disconnect or Main scene unload. No player IDs are transmitted by the mod.
 
-Each installed peer observes the native replicated events and displays its own notification.
+Each installed peer observes the native replicated events and displays its own notice.
 No custom protocol or host-only broadcast is added. Peers can differ in attribution if their
 native impact/damage observations differ. The fallback is a generic death notice.
 
@@ -27,8 +27,11 @@ Names are sanitized and bounded. Physics impacts from identified vehicles count 
 causes. No attacker is inferred from proximity or wanted level. Lethal effects, lightning, and untyped damage have no specific cause label in this version.
 
 A sixteen-entry queue bounds announcements, drops the oldest on overflow, expires entries
-after ten seconds, and submits one native notification every half second. Notification
-lifetime is six seconds. Errors disable the mod for the scene and log once. Source game
+after ten seconds, and releases one notice every half second. Notices render in the mod's
+own top-centre overlay canvas: four pooled rows, word-wrapped to fit, seven second lifetime
+with fades, font borrowed from the native notification prefab. The native notification card
+is only the fallback when building the overlay fails, because its 142 unit single-line
+subtitle truncates every message. Other errors disable the mod for the scene and log once. Source game
 exceptions are returned unchanged. No gameplay methods are suppressed or damage altered.
 
 ## Build
@@ -52,7 +55,8 @@ and tests/Tests.csproj. Format package.py with Ruff. ZIP contains only manifest,
 - Take a nonfatal hit, then die later to another untyped cause: never blame the stale attacker.
 - Join while another player is dead: do not replay that death. Test disconnect/rejoin,
   scene reload, and revival immediately after death.
-- Check that native notifications display with no icon and while the death screen is open.
+- Check that the top-centre feed shows whole wrapped messages, stacks several deaths, and
+  stays visible while the death screen is open.
   Build/tests do not establish native UI layout, Harmony RPC ordering, or MP replication.
 
 Automated checks cover cause freshness/matching, duplicate suppression, revive/reset,

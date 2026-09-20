@@ -9,12 +9,10 @@ using Il2CppScheduleOne.PlayerScripts.Health;
 using Il2CppScheduleOne.Police;
 using Il2CppScheduleOne.UI;
 using Il2CppScheduleOne.Vehicles;
-using Il2CppTMPro;
 using MelonLoader;
 using UnityEngine;
-using UnityEngine.UI;
 
-[assembly: MelonInfo(typeof(DeathNotices.Main), "Death Notices", "0.2.0", "holyfurries")]
+[assembly: MelonInfo(typeof(DeathNotices.Main), "Death Notices", "0.2.1", "holyfurries")]
 [assembly: MelonGame("TVGS", "Schedule I")]
 
 namespace DeathNotices;
@@ -34,6 +32,7 @@ public sealed class Main : MelonMod
     private static readonly NoticeQueue notices = new();
     private static bool running;
     private static bool failed;
+    private static bool feed_failed;
     private float next_tick_seconds;
     private float next_notice_seconds;
     private bool? logged_host;
@@ -79,8 +78,10 @@ public sealed class Main : MelonMod
             state.tracker.reset(alive: true);
         }
         notices.reset();
+        NoticeFeed.reset();
         CasinoNotices.reset();
         failed = false;
+        feed_failed = false;
         logged_host = null;
         next_tick_seconds = 0;
         next_notice_seconds = 0;
@@ -88,10 +89,12 @@ public sealed class Main : MelonMod
 
     public override void OnUpdate()
     {
-        if (!ready || Time.unscaledTime < next_tick_seconds) return;
-        next_tick_seconds = Time.unscaledTime + 0.25f;
+        if (!ready) return;
         try
         {
+            if (!feed_failed) NoticeFeed.update(Time.unscaledTime);
+            if (Time.unscaledTime < next_tick_seconds) return;
+            next_tick_seconds = Time.unscaledTime + 0.25f;
             bool host = InstanceFinder.IsServer;
             if (logged_host != host)
             {
@@ -122,7 +125,7 @@ public sealed class Main : MelonMod
                 }
                 else announce(state);
             }
-            if (Time.unscaledTime < next_notice_seconds || !NotificationsManager.InstanceExists) return;
+            if (Time.unscaledTime < next_notice_seconds) return;
             if (!notices.try_take(Time.unscaledTime, out string message, out string title)) return;
             show_notice(title, message);
             next_notice_seconds = Time.unscaledTime + 0.5f;
@@ -132,25 +135,21 @@ public sealed class Main : MelonMod
 
     private static void show_notice(string title, string message)
     {
-        NotificationsManager manager = NotificationsManager.Instance;
-        manager.SendNotification(title, message, null, 6f, false);
-        if (manager.entries == null || manager.entries.Count == 0) return;
-        RectTransform entry = manager.entries[manager.entries.Count - 1];
-        if (entry == null) return;
-        Transform subtitle_transform = entry.Find("Container/Subtitle");
-        LayoutElement layout = entry.GetComponent<LayoutElement>();
-        if (subtitle_transform == null || layout == null) return;
-        TextMeshProUGUI subtitle = subtitle_transform.GetComponent<TextMeshProUGUI>();
-        if (subtitle == null) return;
-        subtitle.enableWordWrapping = true;
-        float text_height = subtitle.GetPreferredValues(message, subtitle.rectTransform.rect.width, 0).y;
-        if (!float.IsFinite(text_height)) return;
-        float subtitle_height = Math.Clamp(text_height, 25f, 125f);
-        float entry_height = subtitle_height + 25f;
-        subtitle.rectTransform.sizeDelta = new Vector2(subtitle.rectTransform.sizeDelta.x, subtitle_height);
-        subtitle.rectTransform.anchoredPosition = new Vector2(subtitle.rectTransform.anchoredPosition.x, 5f + subtitle_height / 2f);
-        layout.preferredHeight = entry_height;
-        entry.sizeDelta = new Vector2(entry.sizeDelta.x, entry_height);
+        if (!feed_failed)
+        {
+            try
+            {
+                NoticeFeed.show(title, message, Time.unscaledTime);
+                return;
+            }
+            catch (Exception error)
+            {
+                feed_failed = true;
+                NoticeFeed.reset();
+                MelonLogger.Warning($"Death Notices: Overlay feed failed; using native notifications for this scene: {error}");
+            }
+        }
+        if (NotificationsManager.InstanceExists) NotificationsManager.Instance.SendNotification(title, message, null, 6f, false);
     }
 
     private static PlayerState? get_player(Player player)
