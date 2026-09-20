@@ -86,19 +86,13 @@ internal static class Program
                 new DeathCause(kind, new string('a', 100), false, AttackerKind.Player), 3, 0);
             require(bounded.Length <= 192, "Jokes with maximum names fit the notice queue");
         }
-        var ledger = new CasinoLedger();
-        require(ledger.settle(100, 0) && ledger.net == -100, "Losing wager counts once");
-        require(!ledger.settle(100, 200) && ledger.net == 0, "Returned stake is not counted as profit");
-        require(!ledger.settle(100, 100) && ledger.net == 0, "Push neither wins nor loses money");
-        require(!ledger.settle(100, 250) && ledger.net == 150, "Blackjack profit excludes original stake");
-        require(ledger.settle(20, 0) && ledger.net == 130, "Loss can leave player ahead overall");
-        require(CasinoLedger.report("Alex", ledger.net).Contains("Still up $130.00"), "Winning total gets different roast");
-        require(CasinoLedger.report("Alex", -1234).Contains("Down $1,234.00"), "Net loss report");
-        ledger.load(-20);
-        require(ledger.net == -20, "Saved net restores across sessions");
+        require(CasinoReport.format("Alex", 130).Contains("Still up $130.00 at the casino"), "Winning total gets different roast");
+        require(CasinoReport.format("Alex", -1234).Contains("Down $1,234.00"), "Net loss report");
+        require(CasinoReport.format("Alex", 0).Contains("breaking even"), "Break-even report");
+        require(!CasinoReport.format("<b>Alex</b>", -5).Contains('<'), "Casino reports sanitize names");
         bool rejected = false;
-        try { ledger.settle(float.NaN, 0); } catch (ArgumentOutOfRangeException) { rejected = true; }
-        require(rejected && ledger.net == -20, "Invalid result cannot corrupt totals");
+        try { CasinoReport.format("Alex", double.NaN); } catch (ArgumentOutOfRangeException) { rejected = true; }
+        require(rejected, "Non-finite totals are rejected");
         var queue = new NoticeQueue();
         for (int i = 0; i < 20; i++) queue.add($"Player {i} died.", 1, "Death notice");
         require(queue.try_take(2, out notice, out _) && notice == "Player 4 died.", "Overflow retains newest sixteen notices");

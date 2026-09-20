@@ -9,19 +9,18 @@ with extra commentary for repeat visitors.
 
 ## Casino reports
 
-Lose a round of **Blackjack** or **Ride the Bus** and everyone with the mod gets a report:
+With [Casino Ledger](https://thunderstore.io/c/schedule-i/p/holyfurries/CasinoLedger/)
+installed, losing a round of **Blackjack**, **Ride the Bus** or **Slots** gets everyone a report:
 
-- **Alex lost again. Down $1,250.00 at casino cards overall. The house sends its regards.**
-- **Sam lost that round. Still up $400.00 at casino cards overall. Annoying.**
+- **Alex lost again. Down $1,250.00 at the casino overall. The house sends its regards.**
+- **Sam lost that round. Still up $400.00 at the casino overall. Annoying.**
 
-Totals are net winnings minus wagers, tracked from this update onward. Returned stakes
-and tied rounds do not count as profit. Tracking covers these two card games, not slots.
-Each player's total is kept across sessions and saves in their local mod-manager profile,
-under `UserData/DeathNoticesCasino`. Old gambling history cannot be recovered. Switching
-profiles starts a separate record unless that folder is copied too.
+Casino Ledger does the tracking and keeps the totals; Death Notices only comments on them.
+Casino Ledger imports the card totals Death Notices 0.2 kept under
+`UserData/DeathNoticesCasino` the first time it loads a save.
 
 Notices appear at the top centre of the screen, wrap to show the whole message, and last
-seven seconds. The mod does not change payouts, odds, or player money.
+seven seconds.
 
 ## Moving the notices
 

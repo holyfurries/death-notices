@@ -12,8 +12,9 @@ using Il2CppScheduleOne.Vehicles;
 using MelonLoader;
 using UnityEngine;
 
-[assembly: MelonInfo(typeof(DeathNotices.Main), "Death Notices", "0.2.2", "holyfurries")]
+[assembly: MelonInfo(typeof(DeathNotices.Main), "Death Notices", "0.3.0", "holyfurries")]
 [assembly: MelonGame("TVGS", "Schedule I")]
+[assembly: MelonOptionalDependencies("CasinoLedger")]
 
 namespace DeathNotices;
 
@@ -50,7 +51,6 @@ public sealed class Main : MelonMod
         notice_margin_x = preferences.CreateEntry("margin_x", 24f, "Distance from the left or right screen edge (1920x1080 units)");
         notice_margin_y = preferences.CreateEntry("margin_y", 72f, "Distance from the top or bottom screen edge (1920x1080 units)");
         place_notices();
-        CasinoNotices.install(HarmonyInstance);
         HarmonyInstance.Patch(AccessTools.Method(typeof(Player), "RpcLogic___ReceiveImpact_427288424"),
             prefix: new HarmonyMethod(typeof(Main), nameof(observe_impact)));
         HarmonyInstance.Patch(AccessTools.Method(typeof(PlayerHealth), "RpcLogic___TakeDamage_3505310624"),
@@ -73,6 +73,8 @@ public sealed class Main : MelonMod
         if (notice_position == null) return;
         NoticeFeed.place(new NoticePlacement(notice_position.Value, notice_margin_x.Value, notice_margin_y.Value));
     }
+
+    public override void OnLateInitializeMelon() => CasinoNotices.install();
 
     public override void OnSceneWasInitialized(int buildIndex, string sceneName)
     {
@@ -98,7 +100,6 @@ public sealed class Main : MelonMod
         }
         notices.reset();
         NoticeFeed.reset();
-        CasinoNotices.reset();
         failed = false;
         feed_failed = false;
         logged_host = null;
