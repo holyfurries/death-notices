@@ -9,8 +9,10 @@ using Il2CppScheduleOne.PlayerScripts.Health;
 using Il2CppScheduleOne.Police;
 using Il2CppScheduleOne.UI;
 using Il2CppScheduleOne.Vehicles;
+using Il2CppTMPro;
 using MelonLoader;
 using UnityEngine;
+using UnityEngine.UI;
 
 [assembly: MelonInfo(typeof(DeathNotices.Main), "Death Notices", "0.2.0", "holyfurries")]
 [assembly: MelonGame("TVGS", "Schedule I")]
@@ -122,10 +124,33 @@ public sealed class Main : MelonMod
             }
             if (Time.unscaledTime < next_notice_seconds || !NotificationsManager.InstanceExists) return;
             if (!notices.try_take(Time.unscaledTime, out string message, out string title)) return;
-            NotificationsManager.Instance.SendNotification(title, message, null, 6f, false);
+            show_notice(title, message);
             next_notice_seconds = Time.unscaledTime + 0.5f;
         }
         catch (Exception error) { disable(error); }
+    }
+
+    private static void show_notice(string title, string message)
+    {
+        NotificationsManager manager = NotificationsManager.Instance;
+        manager.SendNotification(title, message, null, 6f, false);
+        if (manager.entries == null || manager.entries.Count == 0) return;
+        RectTransform entry = manager.entries[manager.entries.Count - 1];
+        if (entry == null) return;
+        Transform subtitle_transform = entry.Find("Container/Subtitle");
+        LayoutElement layout = entry.GetComponent<LayoutElement>();
+        if (subtitle_transform == null || layout == null) return;
+        TextMeshProUGUI subtitle = subtitle_transform.GetComponent<TextMeshProUGUI>();
+        if (subtitle == null) return;
+        subtitle.enableWordWrapping = true;
+        float text_height = subtitle.GetPreferredValues(message, subtitle.rectTransform.rect.width, 0).y;
+        if (!float.IsFinite(text_height)) return;
+        float subtitle_height = Math.Clamp(text_height, 25f, 125f);
+        float entry_height = subtitle_height + 25f;
+        subtitle.rectTransform.sizeDelta = new Vector2(subtitle.rectTransform.sizeDelta.x, subtitle_height);
+        subtitle.rectTransform.anchoredPosition = new Vector2(subtitle.rectTransform.anchoredPosition.x, 5f + subtitle_height / 2f);
+        layout.preferredHeight = entry_height;
+        entry.sizeDelta = new Vector2(entry.sizeDelta.x, entry_height);
     }
 
     private static PlayerState? get_player(Player player)
