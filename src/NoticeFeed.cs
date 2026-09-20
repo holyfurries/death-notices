@@ -29,18 +29,24 @@ internal static class NoticeFeed
     private const float row_gap = 6f;
     private const float padding_x = 18f;
     private const float padding_y = 9f;
-    private const float top_offset = 72f;
     private const float lifetime_seconds = 7f;
     private const float fade_in_seconds = 0.2f;
     private const float fade_out_seconds = 0.6f;
     private static readonly Row?[] rows = new Row?[4];
     private static GameObject? canvas_object;
+    private static NoticePlacement placement = new(NoticePosition.TopCenter);
 
     public static void reset()
     {
         if (canvas_object != null) UnityEngine.Object.Destroy(canvas_object);
         canvas_object = null;
         Array.Clear(rows, 0, rows.Length);
+    }
+
+    public static void place(NoticePlacement value)
+    {
+        placement = value.validated();
+        if (canvas_object != null) layout();
     }
 
     public static void show(string title, string message, float now_seconds)
@@ -92,13 +98,23 @@ internal static class NoticeFeed
         foreach (Row? row in rows)
         {
             if (row == null || float.IsNegativeInfinity(row.shown_seconds)) continue;
-            float offset = top_offset;
+            float offset = 0f;
             foreach (Row? other in rows)
             {
                 if (other == null || other == row || float.IsNegativeInfinity(other.shown_seconds)) continue;
                 if (other.shown_seconds < row.shown_seconds) offset += other.height + row_gap;
             }
-            row.rect.anchoredPosition = new Vector2(0f, -offset);
+            var anchor = new Vector2(placement.anchor_x, placement.anchor_y);
+            row.rect.anchorMin = anchor;
+            row.rect.anchorMax = anchor;
+            row.rect.pivot = anchor;
+            row.rect.anchoredPosition = new Vector2(placement.row_x(), placement.row_y(offset));
+            row.text.alignment = placement.anchor_x switch
+            {
+                0f => TextAlignmentOptions.Left,
+                1f => TextAlignmentOptions.Right,
+                _ => TextAlignmentOptions.Center
+            };
         }
     }
 
@@ -120,9 +136,6 @@ internal static class NoticeFeed
             var root = new GameObject("Notice");
             root.transform.SetParent(canvas_object.transform, false);
             RectTransform rect = root.AddComponent<RectTransform>();
-            rect.anchorMin = new Vector2(0.5f, 1f);
-            rect.anchorMax = new Vector2(0.5f, 1f);
-            rect.pivot = new Vector2(0.5f, 1f);
             Image background = root.AddComponent<Image>();
             background.color = new Color(0.05f, 0.05f, 0.07f, 0.82f);
             background.raycastTarget = false;
@@ -135,7 +148,6 @@ internal static class NoticeFeed
             if (font != null) text.font = font;
             text.fontSize = 22f;
             text.color = Color.white;
-            text.alignment = TextAlignmentOptions.Center;
             text.enableWordWrapping = true;
             text.overflowMode = TextOverflowModes.Overflow;
             text.raycastTarget = false;

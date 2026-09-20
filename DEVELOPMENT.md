@@ -1,6 +1,6 @@
 # Development
 
-Version 0.2.1, built against local Schedule I 0.4.6f13 IL2CPP interop assemblies.
+Version 0.2.2, built against local Schedule I 0.4.6f13 IL2CPP interop assemblies.
 
 ## Event handling
 
@@ -29,7 +29,7 @@ causes. No attacker is inferred from proximity or wanted level. Lethal effects, 
 A sixteen-entry queue bounds announcements, drops the oldest on overflow, expires entries
 after ten seconds, and releases one notice every half second. Notices render in the mod's
 own top-centre overlay canvas: four pooled rows, word-wrapped to fit, seven second lifetime
-with fades, font borrowed from the native notification prefab. The native notification card
+with fades, corner or centre placement from the `DeathNotices` preferences, font borrowed from the native notification prefab. The native notification card
 is only the fallback when building the overlay fails, because its 142 unit single-line
 subtitle truncates every message. Other errors disable the mod for the scene and log once. Source game
 exceptions are returned unchanged. No gameplay methods are suppressed or damage altered.

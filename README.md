@@ -23,6 +23,21 @@ profiles starts a separate record unless that folder is copied too.
 Notices appear at the top centre of the screen, wrap to show the whole message, and last
 seven seconds. The mod does not change payouts, odds, or player money.
 
+## Moving the notices
+
+Each player can move the feed in `UserData/MelonPreferences.cfg` after the first launch:
+
+```toml
+[DeathNotices]
+position = "TopCenter"
+margin_x = 24.0
+margin_y = 72.0
+```
+
+`position` is `TopLeft`, `TopCenter`, `TopRight`, `BottomLeft`, `BottomCenter` or `BottomRight`.
+Margins are distances from the screen edge on a 1920x1080 layout; `margin_x` is ignored when
+centred. Bottom positions stack upward.
+
 ## Installation
 
 Install through **r2modman** or **Thunderstore Mod Manager**.

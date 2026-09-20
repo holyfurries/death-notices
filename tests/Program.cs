@@ -113,6 +113,14 @@ internal static class Program
                 require(DeathTracker.format_notice(new string('v', 100),
                     new DeathCause(kind, new string('a', 100), false, AttackerKind.Player), 1, variant).Length <= 192,
                     "All joke variants fit with maximum names");
+        var top_center = new NoticePlacement(NoticePosition.TopCenter);
+        require(top_center.anchor_x == 0.5f && top_center.anchor_y == 1f && top_center.row_x() == 0f, "Top centre anchors to the middle of the top edge");
+        require(top_center.row_y(0f) == -72f && top_center.row_y(40f) == -112f, "Top placements stack downward from the margin");
+        var bottom_right = new NoticePlacement(NoticePosition.BottomRight, margin_x: 30f, margin_y: 100f);
+        require(bottom_right.anchor_x == 1f && bottom_right.anchor_y == 0f && bottom_right.row_x() == -30f, "Right placements inset from the right edge");
+        require(bottom_right.row_y(40f) == 140f, "Bottom placements stack upward from the margin");
+        NoticePlacement repaired = new NoticePlacement((NoticePosition)99, float.NaN, -5f).validated();
+        require(repaired.position == NoticePosition.TopCenter && repaired.margin_x == 24f && repaired.margin_y == 0f, "Invalid placement preferences are repaired");
         Console.WriteLine("Death attribution, duplicate suppression, lifecycle, names, and queue checks passed.");
     }
 

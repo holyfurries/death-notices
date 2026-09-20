@@ -12,7 +12,7 @@ using Il2CppScheduleOne.Vehicles;
 using MelonLoader;
 using UnityEngine;
 
-[assembly: MelonInfo(typeof(DeathNotices.Main), "Death Notices", "0.2.1", "holyfurries")]
+[assembly: MelonInfo(typeof(DeathNotices.Main), "Death Notices", "0.2.2", "holyfurries")]
 [assembly: MelonGame("TVGS", "Schedule I")]
 
 namespace DeathNotices;
@@ -30,6 +30,9 @@ public sealed class Main : MelonMod
     private readonly record struct DeathEvent(PlayerState? state, bool alive_before);
     private static readonly PlayerState[] players = new PlayerState[16];
     private static readonly NoticeQueue notices = new();
+    private static MelonPreferences_Entry<NoticePosition> notice_position = null!;
+    private static MelonPreferences_Entry<float> notice_margin_x = null!;
+    private static MelonPreferences_Entry<float> notice_margin_y = null!;
     private static bool running;
     private static bool failed;
     private static bool feed_failed;
@@ -41,6 +44,12 @@ public sealed class Main : MelonMod
     public override void OnInitializeMelon()
     {
         for (int i = 0; i < players.Length; i++) players[i] = new PlayerState();
+        MelonPreferences_Category preferences = MelonPreferences.CreateCategory("DeathNotices");
+        notice_position = preferences.CreateEntry("position", NoticePosition.TopCenter, "Notice position",
+            "TopLeft, TopCenter, TopRight, BottomLeft, BottomCenter or BottomRight");
+        notice_margin_x = preferences.CreateEntry("margin_x", 24f, "Distance from the left or right screen edge (1920x1080 units)");
+        notice_margin_y = preferences.CreateEntry("margin_y", 72f, "Distance from the top or bottom screen edge (1920x1080 units)");
+        place_notices();
         CasinoNotices.install(HarmonyInstance);
         HarmonyInstance.Patch(AccessTools.Method(typeof(Player), "RpcLogic___ReceiveImpact_427288424"),
             prefix: new HarmonyMethod(typeof(Main), nameof(observe_impact)));
@@ -53,6 +62,16 @@ public sealed class Main : MelonMod
             postfix: new HarmonyMethod(typeof(Main), nameof(after_death)));
         HarmonyInstance.Patch(AccessTools.Method(typeof(PlayerHealth), "RpcLogic___Revive_3848837105"),
             postfix: new HarmonyMethod(typeof(Main), nameof(after_revive)));
+    }
+
+    public override void OnPreferencesSaved() => place_notices();
+
+    public override void OnPreferencesLoaded() => place_notices();
+
+    private static void place_notices()
+    {
+        if (notice_position == null) return;
+        NoticeFeed.place(new NoticePlacement(notice_position.Value, notice_margin_x.Value, notice_margin_y.Value));
     }
 
     public override void OnSceneWasInitialized(int buildIndex, string sceneName)
