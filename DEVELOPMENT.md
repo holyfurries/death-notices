@@ -1,6 +1,6 @@
 # Development
 
-Version 0.3.0, built against local Schedule I 0.4.6f13 IL2CPP interop assemblies.
+Version 0.3.1, built against local Schedule I 0.4.6f13 IL2CPP interop assemblies.
 
 ## Event handling
 
@@ -79,7 +79,8 @@ Casino tracking lives in the Casino Ledger mod. `CasinoNotices` subscribes to it
 or remote, using the player's lifetime net across all games. Casino Ledger is an optional
 dependency: `MelonOptionalDependencies` orders loading, `OnLateInitializeMelon` checks
 `MelonBase.FindMelon`, and only the non-inlined `subscribe` method touches its types, so
-Death Notices loads without it. The build references `../casino-ledger/bin/Release/net6.0/
+Death Notices loads without it. It is deliberately absent from the Thunderstore manifest
+dependencies, which would force the install. The build references `../casino-ledger/bin/Release/net6.0/
 CasinoLedger.dll`; override with `-p:CasinoLedgerDll=`. Build Casino Ledger first.
 
 Pure tests cover report wording, name safety and bounds. With both mods installed, check a

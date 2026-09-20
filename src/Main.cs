@@ -12,7 +12,7 @@ using Il2CppScheduleOne.Vehicles;
 using MelonLoader;
 using UnityEngine;
 
-[assembly: MelonInfo(typeof(DeathNotices.Main), "Death Notices", "0.3.0", "holyfurries")]
+[assembly: MelonInfo(typeof(DeathNotices.Main), "Death Notices", "0.3.1", "holyfurries")]
 [assembly: MelonGame("TVGS", "Schedule I")]
 [assembly: MelonOptionalDependencies("CasinoLedger")]
 
