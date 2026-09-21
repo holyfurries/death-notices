@@ -86,13 +86,6 @@ internal static class Program
                 new DeathCause(kind, new string('a', 100), false, AttackerKind.Player), 3, 0);
             require(bounded.Length <= 192, "Jokes with maximum names fit the notice queue");
         }
-        require(CasinoReport.format("Alex", 130).Contains("Still up $130.00 at the casino"), "Winning total gets different roast");
-        require(CasinoReport.format("Alex", -1234).Contains("Down $1,234.00"), "Net loss report");
-        require(CasinoReport.format("Alex", 0).Contains("breaking even"), "Break-even report");
-        require(!CasinoReport.format("<b>Alex</b>", -5).Contains('<'), "Casino reports sanitize names");
-        bool rejected = false;
-        try { CasinoReport.format("Alex", double.NaN); } catch (ArgumentOutOfRangeException) { rejected = true; }
-        require(rejected, "Non-finite totals are rejected");
         var queue = new NoticeQueue();
         for (int i = 0; i < 20; i++) queue.add($"Player {i} died.", 1, "Death notice");
         require(queue.try_take(2, out notice, out _) && notice == "Player 4 died.", "Overflow retains newest sixteen notices");
@@ -100,8 +93,8 @@ internal static class Program
         queue.add("Alex died.", 20, "Death notice");
         queue.reset();
         require(!queue.try_take(20, out _, out _), "Scene change clears notices");
-        queue.add("Alex is down $10.", 30, "Casino report");
-        require(queue.try_take(30, out notice, out string title) && title == "Casino report", "Casino reports never use death title");
+        queue.add("Alex died.", 30, "Death notice");
+        require(queue.try_take(30, out notice, out string title) && title == "Death notice", "Notices keep their title");
         foreach (DeathKind kind in Enum.GetValues<DeathKind>())
             for (int variant = 0; variant < 4; variant++)
                 require(DeathTracker.format_notice(new string('v', 100),

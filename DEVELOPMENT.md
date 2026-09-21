@@ -1,6 +1,6 @@
 # Development
 
-Version 0.3.1, built against local Schedule I 0.4.6f13 IL2CPP interop assemblies.
+Version 0.4.0, built against local Schedule I 0.4.6f13 IL2CPP interop assemblies.
 
 ## Event handling
 
@@ -71,17 +71,3 @@ player called "police" from selecting police-specific text. Repeat-death comment
 replace the joke on third and later odd-numbered deaths. Counts cap at 1000, survive
 revives, and reset with player identity or scene. Each peer chooses wording independently.
 All names and final messages remain bounded. The old timed pigeon notification is removed.
-
-## Casino reports
-
-Casino tracking lives in the Casino Ledger mod. `CasinoNotices` subscribes to its
-`CasinoStats.round_settled` event and queues a Casino report for every losing round, local
-or remote, using the player's lifetime net across all games. Casino Ledger is an optional
-dependency: `MelonOptionalDependencies` orders loading, `OnLateInitializeMelon` checks
-`MelonBase.FindMelon`, and only the non-inlined `subscribe` method touches its types, so
-Death Notices loads without it. It is deliberately absent from the Thunderstore manifest
-dependencies, which would force the install. The build references `../casino-ledger/bin/Release/net6.0/
-CasinoLedger.dll`; override with `-p:CasinoLedgerDll=`. Build Casino Ledger first.
-
-Pure tests cover report wording, name safety and bounds. With both mods installed, check a
-losing round of each game in SP and MP, and that Death Notices loads alone without errors.

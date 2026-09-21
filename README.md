@@ -7,18 +7,10 @@ with extra commentary for repeat visitors.
 - **Sam discovered friendly fire isn't. Courtesy of Riley.**
 - **Jordan has been banned from the alive casino.**
 
-## Casino reports
+## Casino
 
-With [Casino Ledger](https://thunderstore.io/c/schedule-i/p/holyfurries/CasinoLedger/)
-installed, losing a round of **Blackjack**, **Ride the Bus** or **Slots** gets everyone a report:
-
-- **Alex lost again. Down $1,250.00 at the casino overall. The house sends its regards.**
-- **Sam lost that round. Still up $400.00 at the casino overall. Annoying.**
-
-Casino Ledger is optional and is not installed automatically; without it Death Notices only
-announces deaths. Casino Ledger does the tracking and keeps the totals; Death Notices only comments on them.
-Casino Ledger imports the card totals Death Notices 0.2 kept under
-`UserData/DeathNoticesCasino` the first time it loads a save.
+Casino reports moved out in 0.4. [Casino Ledger](https://thunderstore.io/c/schedule-i/p/holyfurries/CasinoLedger/)
+tracks casino profit and loss and shows it on screen.
 
 Notices appear at the top centre of the screen, wrap to show the whole message, and last
 seven seconds.

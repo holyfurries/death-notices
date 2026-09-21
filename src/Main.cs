@@ -12,9 +12,8 @@ using Il2CppScheduleOne.Vehicles;
 using MelonLoader;
 using UnityEngine;
 
-[assembly: MelonInfo(typeof(DeathNotices.Main), "Death Notices", "0.3.1", "holyfurries")]
+[assembly: MelonInfo(typeof(DeathNotices.Main), "Death Notices", "0.4.0", "holyfurries")]
 [assembly: MelonGame("TVGS", "Schedule I")]
-[assembly: MelonOptionalDependencies("CasinoLedger")]
 
 namespace DeathNotices;
 
@@ -73,8 +72,6 @@ public sealed class Main : MelonMod
         if (notice_position == null) return;
         NoticeFeed.place(new NoticePlacement(notice_position.Value, notice_margin_x.Value, notice_margin_y.Value));
     }
-
-    public override void OnLateInitializeMelon() => CasinoNotices.install();
 
     public override void OnSceneWasInitialized(int buildIndex, string sceneName)
     {
