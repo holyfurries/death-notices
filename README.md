@@ -17,7 +17,10 @@ seven seconds.
 
 ## Moving the notices
 
-Each player can move the feed in `UserData/MelonPreferences.cfg` after the first launch:
+Each player can move the feed from the **Mods** tab of the game's settings screen (added by
+[Mod Settings](https://thunderstore.io/c/schedule-i/p/holyfurries/ModSettings/), installed automatically):
+notice position, side margin and top or bottom margin. The feed moves as you change them. The
+same values live in `UserData/MelonPreferences.cfg`:
 
 ```toml
 [DeathNotices]

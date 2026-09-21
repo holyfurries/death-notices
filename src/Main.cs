@@ -12,7 +12,7 @@ using Il2CppScheduleOne.Vehicles;
 using MelonLoader;
 using UnityEngine;
 
-[assembly: MelonInfo(typeof(DeathNotices.Main), "Death Notices", "0.4.0", "holyfurries")]
+[assembly: MelonInfo(typeof(DeathNotices.Main), "Death Notices", "0.5.0", "holyfurries")]
 [assembly: MelonGame("TVGS", "Schedule I")]
 
 namespace DeathNotices;
@@ -49,6 +49,12 @@ public sealed class Main : MelonMod
             "TopLeft, TopCenter, TopRight, BottomLeft, BottomCenter or BottomRight");
         notice_margin_x = preferences.CreateEntry("margin_x", 24f, "Distance from the left or right screen edge (1920x1080 units)");
         notice_margin_y = preferences.CreateEntry("margin_y", 72f, "Distance from the top or bottom screen edge (1920x1080 units)");
+        ModSettings.Settings.dropdown("Death Notices", "Notice position", notice_position);
+        ModSettings.Settings.slider("Death Notices", "Side margin", notice_margin_x, minimum: 0f, maximum: 600f, whole_numbers: true);
+        ModSettings.Settings.slider("Death Notices", "Top or bottom margin", notice_margin_y, minimum: 0f, maximum: 900f, whole_numbers: true);
+        notice_position.OnEntryValueChanged.Subscribe((_, _) => place_notices());
+        notice_margin_x.OnEntryValueChanged.Subscribe((_, _) => place_notices());
+        notice_margin_y.OnEntryValueChanged.Subscribe((_, _) => place_notices());
         place_notices();
         HarmonyInstance.Patch(AccessTools.Method(typeof(Player), "RpcLogic___ReceiveImpact_427288424"),
             prefix: new HarmonyMethod(typeof(Main), nameof(observe_impact)));
