@@ -11,15 +11,14 @@ internal readonly record struct DeathCause(DeathKind kind, string attacker = "",
 
 internal sealed class DeathTracker
 {
+    private readonly record struct PendingImpact(DeathCause cause, float amount, float seconds);
+    private readonly record struct FatalDamage(DeathCause cause, float seconds);
     private readonly int[] impact_ids = new int[8];
     private int death_count;
     private int impact_count;
     private int impact_index;
-    private DeathCause pending_cause;
-    private float pending_amount;
-    private float pending_seconds = float.NegativeInfinity;
-    private DeathCause last_cause;
-    private float damage_seconds = float.NegativeInfinity;
+    private PendingImpact? pending_impact;
+    private FatalDamage? fatal_damage;
     public bool is_dead { get; private set; }
 
     public void reset(bool alive)
@@ -27,11 +26,8 @@ internal sealed class DeathTracker
         death_count = 0;
         impact_count = 0;
         impact_index = 0;
-        pending_cause = default;
-        pending_amount = 0;
-        pending_seconds = float.NegativeInfinity;
-        last_cause = default;
-        damage_seconds = float.NegativeInfinity;
+        pending_impact = null;
+        fatal_damage = null;
         is_dead = !alive;
     }
 
@@ -49,25 +45,23 @@ internal sealed class DeathTracker
         impact_ids[impact_index] = impact_id;
         impact_index = (impact_index + 1) % impact_ids.Length;
         impact_count = Math.Min(impact_ids.Length, impact_count + 1);
-        pending_cause = cause;
-        pending_amount = amount;
-        pending_seconds = now_seconds;
+        pending_impact = new PendingImpact(cause, amount, now_seconds);
     }
 
     public DeathCause consume_impact(float amount, float now_seconds)
     {
-        float age = now_seconds - pending_seconds;
-        bool match = !is_dead && float.IsFinite(amount) && amount > 0 && float.IsFinite(age) &&
-            age >= 0 && age <= 1.5f && Math.Abs(amount - pending_amount) <= 0.01f;
-        pending_seconds = float.NegativeInfinity;
-        return match ? pending_cause : default;
+        PendingImpact? pending = pending_impact;
+        pending_impact = null;
+        if (is_dead || !float.IsFinite(amount) || amount <= 0 || pending is not PendingImpact impact) return default;
+        float age = now_seconds - impact.seconds;
+        bool match = float.IsFinite(age) && age >= 0 && age <= 1.5f && Math.Abs(amount - impact.amount) <= 0.01f;
+        return match ? impact.cause : default;
     }
 
     public void record_damage(DeathCause cause, bool fatal, float now_seconds)
     {
         if (is_dead || !float.IsFinite(now_seconds)) return;
-        last_cause = fatal ? cause : default;
-        damage_seconds = now_seconds;
+        fatal_damage = fatal ? new FatalDamage(cause, now_seconds) : null;
     }
 
     public bool try_death(string victim, float now_seconds, DeathCause? current_damage, int variation, out string message)
@@ -75,11 +69,15 @@ internal sealed class DeathTracker
         message = "";
         if (is_dead || !float.IsFinite(now_seconds)) return false;
         is_dead = true;
-        float age = now_seconds - damage_seconds;
-        DeathCause cause = current_damage ?? (age >= 0 && age <= 2f ? last_cause : default);
+        DeathCause cause = current_damage ?? default;
+        if (current_damage == null && fatal_damage is FatalDamage damage)
+        {
+            float age = now_seconds - damage.seconds;
+            if (age >= 0 && age <= 2f) cause = damage.cause;
+        }
         death_count = Math.Min(death_count + 1, 1000);
         message = format_notice(victim, cause, death_count, variation);
-        pending_seconds = float.NegativeInfinity;
+        pending_impact = null;
         return true;
     }
 

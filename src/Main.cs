@@ -12,7 +12,7 @@ using Il2CppScheduleOne.Vehicles;
 using MelonLoader;
 using UnityEngine;
 
-[assembly: MelonInfo(typeof(DeathNotices.Main), "Death Notices", "0.5.0", "holyfurries")]
+[assembly: MelonInfo(typeof(DeathNotices.Main), "Death Notices", "0.5.1", "holyfurries")]
 [assembly: MelonGame("TVGS", "Schedule I")]
 
 namespace DeathNotices;
@@ -49,6 +49,10 @@ public sealed class Main : MelonMod
             "TopLeft, TopCenter, TopRight, BottomLeft, BottomCenter or BottomRight");
         notice_margin_x = preferences.CreateEntry("margin_x", 24f, "Distance from the left or right screen edge (1920x1080 units)");
         notice_margin_y = preferences.CreateEntry("margin_y", 72f, "Distance from the top or bottom screen edge (1920x1080 units)");
+        NoticePlacement placement = new NoticePlacement(notice_position.Value, notice_margin_x.Value, notice_margin_y.Value).validated();
+        notice_position.Value = placement.position;
+        notice_margin_x.Value = placement.margin_x;
+        notice_margin_y.Value = placement.margin_y;
         ModSettings.Settings.dropdown("Death Notices", "Notice position", notice_position);
         ModSettings.Settings.slider("Death Notices", "Side margin", notice_margin_x, minimum: 0f, maximum: 600f, whole_numbers: true);
         ModSettings.Settings.slider("Death Notices", "Top or bottom margin", notice_margin_y, minimum: 0f, maximum: 900f, whole_numbers: true);
@@ -68,8 +72,6 @@ public sealed class Main : MelonMod
         HarmonyInstance.Patch(AccessTools.Method(typeof(PlayerHealth), "RpcLogic___Revive_3848837105"),
             postfix: new HarmonyMethod(typeof(Main), nameof(after_revive)));
     }
-
-    public override void OnPreferencesSaved() => place_notices();
 
     public override void OnPreferencesLoaded() => place_notices();
 
@@ -121,7 +123,7 @@ public sealed class Main : MelonMod
             bool host = InstanceFinder.IsServer;
             if (logged_host != host)
             {
-                LoggerInstance.Msg($"Death Notices: {(host ? "Host" : "Client")} listening to native death events; each installed peer displays its own notices.");
+                LoggerInstance.Msg($"Death Notices: {(host ? "Host" : "Client")} listening to native death events. Each installed peer displays its own notices.");
                 logged_host = host;
             }
             int count = Math.Min(Player.PlayerList.Count, players.Length);
@@ -169,7 +171,7 @@ public sealed class Main : MelonMod
             {
                 feed_failed = true;
                 NoticeFeed.reset();
-                MelonLogger.Warning($"Death Notices: Overlay feed failed; using native notifications for this scene: {error}");
+                MelonLogger.Warning($"Death Notices: Overlay feed failed. Using native notifications for this scene: {error}");
             }
         }
         if (NotificationsManager.InstanceExists) NotificationsManager.Instance.SendNotification(title, message, null, 6f, false);
@@ -301,13 +303,8 @@ public sealed class Main : MelonMod
     private static void announce(PlayerState state)
     {
         if (state.player == null || !state.tracker.try_death(state.player.PlayerName, Time.unscaledTime, state.current_damage, System.Random.Shared.Next(8), out string message)) return;
-        queue_notice("Death notice", message);
+        notices.add(message, Time.unscaledTime, "Death notice");
         MelonLogger.Msg($"Death Notices: {message}");
-    }
-
-    internal static void queue_notice(string title, string message)
-    {
-        notices.add(message, Time.unscaledTime, title);
     }
 
     private static void disable(Exception error)

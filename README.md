@@ -1,49 +1,39 @@
 # Death Notices
 
-Death announcements with a questionable bedside manner. Messages vary with the cause,
-with extra commentary for repeat visitors.
+Death announcements with a questionable bedside manner. Messages vary with the
+observed cause, with extra commentary for repeat visitors.
 
 - **Alex unsuccessfully disputed the charges. Courtesy of police.**
 - **Sam discovered friendly fire isn't. Courtesy of Riley.**
-- **Jordan has been banned from the alive casino.**
 
-## Casino
+Notices wrap to show the whole message and last seven seconds. Known attackers
+are named. Unknown causes get a generic notice.
 
-Casino reports moved out in 0.4. [Casino Ledger](https://thunderstore.io/c/schedule-i/p/holyfurries/CasinoLedger/)
-tracks casino profit and loss and shows it on screen.
+## Install
 
-Notices appear at the top centre of the screen, wrap to show the whole message, and last
-seven seconds.
+**IL2CPP only.** Requires **MelonLoader 0.7.3** and **ModSettings 0.2.0**.
 
-## Moving the notices
+Install through **r2modman** or **Thunderstore Mod Manager**, which installs
+ModSettings automatically. For manual installation, copy `DeathNotices.dll` and
+`ModSettings.dll` from their release ZIPs into the game's `Mods/` folder.
 
-Each player can move the feed from the **Mods** tab of the game's settings screen (added by
-[Mod Settings](https://thunderstore.io/c/schedule-i/p/holyfurries/ModSettings/), installed automatically):
-notice position, side margin and top or bottom margin. The feed moves as you change them. The
-same values live in `UserData/MelonPreferences.cfg`:
+Install on every player. Each peer observes native death events, so cause
+attribution can differ between host and clients.
 
-```toml
-[DeathNotices]
-position = "TopCenter"
-margin_x = 24.0
-margin_y = 72.0
-```
+## Settings
 
-`position` is `TopLeft`, `TopCenter`, `TopRight`, `BottomLeft`, `BottomCenter` or `BottomRight`.
-Margins are distances from the screen edge on a 1920x1080 layout; `margin_x` is ignored when
-centred. Bottom positions stack upward.
+Open **Settings → Mods → Death Notices** to choose a top or bottom position,
+side margin, and vertical margin. Changes apply live and are saved in
+`UserData/MelonPreferences.cfg`. Centred positions ignore the side margin.
+Bottom positions stack upward.
 
-## Installation
-
-Install through **r2modman** or **Thunderstore Mod Manager**.
-
-For manual installation, put `DeathNotices.dll` in your game's `Mods` folder.
-Requires **MelonLoader 0.7.3**. **IL2CPP only.**
+For casino profit and loss, use
+[Casino Ledger](https://thunderstore.io/c/schedule-i/p/holyfurries/CasinoLedger/).
 
 ## Development
 
-Build instructions: [BUILDING.md](https://github.com/holyfurries/death-notices/blob/main/BUILDING.md).
+See
+[BUILDING.md](https://github.com/holyfurries/death-notices/blob/main/BUILDING.md)
+for builds, tests, packaging, and in-game checks.
 
-## License
-
-[MIT](https://github.com/holyfurries/death-notices/blob/main/LICENSE).
+[MIT license](https://github.com/holyfurries/death-notices/blob/main/LICENSE).
