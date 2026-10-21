@@ -1,5 +1,9 @@
 # Death Notices
 
+[Holy Furries Studio](https://holyfurries.com) ·
+[Thunderstore](https://thunderstore.io/c/schedule-i/p/holyfurries/DeathNotices/)
+· [Source](https://github.com/holyfurries/death-notices)
+
 Death announcements with a questionable bedside manner. Messages vary with the
 observed cause, with extra commentary for repeat visitors.
 
@@ -36,4 +40,5 @@ See
 [BUILDING.md](https://github.com/holyfurries/death-notices/blob/main/BUILDING.md)
 for builds, tests, packaging, and in-game checks.
 
-[MIT license](https://github.com/holyfurries/death-notices/blob/main/LICENSE).
+[Code: MIT](https://github.com/holyfurries/death-notices/blob/main/LICENSE).
+[Icon: studio asset terms](https://github.com/holyfurries/brand-assets/blob/main/LICENSE).
