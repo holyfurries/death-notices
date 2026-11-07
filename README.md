@@ -15,7 +15,7 @@ are named. Unknown causes get a generic notice.
 
 ## Install
 
-**IL2CPP only.** Requires **MelonLoader 0.7.3** and **ModSettings 0.2.0**.
+**IL2CPP only.** Requires **MelonLoader 0.7.3** and **ModSettings 0.3.1**.
 
 Install through **r2modman** or **Thunderstore Mod Manager**, which installs
 ModSettings automatically. For manual installation, copy `DeathNotices.dll` and
@@ -29,7 +29,9 @@ attribution can differ between host and clients.
 Open **Settings → Mods → Death Notices** to choose a top or bottom position,
 side margin, and vertical margin. Changes apply live and are saved in
 `UserData/MelonPreferences.cfg`. Centred positions ignore the side margin.
-Bottom positions stack upward.
+Bottom positions stack upward. Notices narrow to fit the screen, and placement
+margins are capped to keep the feed visible. Use **Preview notices** to show
+sample messages while adjusting the layout.
 
 For casino profit and loss, use
 [Casino Ledger](https://thunderstore.io/c/schedule-i/p/holyfurries/CasinoLedger/).

@@ -63,6 +63,9 @@ internal static class Program
         require(friendly.Contains("friendly fire") && !friendly.Contains("disputed"), "Names cannot spoof attacker type");
         require(friendly.Contains("Courtesy of police"), "Friendly-fire variant retains attacker");
         require(DeathTracker.format_notice("Alex", default, 1, 0).Contains("administrative problem"), "Unknown cause joke avoids invented cause");
+        for (int variation = 0; variation < 4; variation++)
+            require(!DeathTracker.format_notice("Alex", default, 1, variation).Contains("casino", StringComparison.OrdinalIgnoreCase),
+                "Unknown causes do not imply casino activity");
         require(!DeathTracker.format_notice("Alex", player_police with { self_inflicted = true }, 1, 0).Contains("Friendly fire"),
             "Self damage is not blamed on a teammate");
         for (int roll = 0; roll < 4; roll++)

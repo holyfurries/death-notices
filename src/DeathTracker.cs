@@ -132,8 +132,8 @@ internal sealed class DeathTracker
             (DeathKind.Impact, _) => "should have moved slightly to the left.",
             (_, 0) => "has become an administrative problem.",
             (_, 1) => "has left the group chat.",
-            (_, 2) => "has been banned from the alive casino.",
-            _ => "bet it all on red."
+            (_, 2) => "has clocked out indefinitely.",
+            _ => "is someone else's paperwork now."
         };
         string credit = cause.kind != DeathKind.Unknown && !cause.self_inflicted &&
             !string.IsNullOrEmpty(cause.attacker) ? $" Courtesy of {safe_name(cause.attacker)}." : "";

@@ -6,7 +6,7 @@ Requires the .NET 8 SDK and Rust. The mod targets .NET 6 and tests run on .NET
 Set the MelonLoader path to the directory containing both `net6` and
 `Il2CppAssemblies`. These game and loader dependencies stay on your machine.
 
-Install ModSettings 0.2.0 in the profile's `Mods` folder before building. For a
+Install ModSettings 0.3.1 in the profile's `Mods` folder before building. For a
 local ModSettings build, set `ModSettingsDll` to its DLL path instead. The
 shared DLL is referenced during compilation and shipped separately by its own
 mod.

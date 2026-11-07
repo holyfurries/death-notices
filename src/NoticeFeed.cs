@@ -60,11 +60,13 @@ internal static class NoticeFeed
         }
         if (oldest == null) return;
         string text = $"<b><color=#F2B84B>{title}</color></b>  {message}";
-        float text_height = oldest.text.GetPreferredValues(text, row_width - padding_x * 2f, 0f).y;
+        float width = Math.Min(row_width, Screen.width * 1080f / Math.Max(1, Screen.height) - 24f);
+        width = Math.Max(80f, width);
+        float text_height = oldest.text.GetPreferredValues(text, width - padding_x * 2f, 0f).y;
         if (!float.IsFinite(text_height)) return;
         oldest.text.text = text;
         oldest.height = Math.Clamp(text_height, 20f, 200f) + padding_y * 2f;
-        oldest.rect.sizeDelta = new Vector2(row_width, oldest.height);
+        oldest.rect.sizeDelta = new Vector2(width, oldest.height);
         oldest.shown_seconds = now_seconds;
         oldest.group.alpha = 0f;
         oldest.root.SetActive(true);
@@ -95,20 +97,37 @@ internal static class NoticeFeed
 
     private static void layout()
     {
-        foreach (Row? row in rows)
+        float viewport_width = Screen.width * 1080f / Math.Max(1, Screen.height);
+        float stack_height = 0f;
+        int active_count = 0;
+        foreach (Row? active in rows)
         {
+            if (active == null || float.IsNegativeInfinity(active.shown_seconds)) continue;
+            stack_height += active.height;
+            active_count++;
+        }
+        stack_height += Math.Max(0, active_count - 1) * row_gap;
+        float margin_y = Math.Min(placement.margin_y, Math.Max(0f, 1080f - stack_height - 12f));
+        for (int i = 0; i < rows.Length; i++)
+        {
+            Row? row = rows[i];
             if (row == null || float.IsNegativeInfinity(row.shown_seconds)) continue;
             float offset = 0f;
-            foreach (Row? other in rows)
+            for (int j = 0; j < rows.Length; j++)
             {
+                Row? other = rows[j];
                 if (other == null || other == row || float.IsNegativeInfinity(other.shown_seconds)) continue;
-                if (other.shown_seconds < row.shown_seconds) offset += other.height + row_gap;
+                if (other.shown_seconds < row.shown_seconds || (other.shown_seconds == row.shown_seconds && j < i))
+                    offset += other.height + row_gap;
             }
             var anchor = new Vector2(placement.anchor_x, placement.anchor_y);
             row.rect.anchorMin = anchor;
             row.rect.anchorMax = anchor;
             row.rect.pivot = anchor;
-            row.rect.anchoredPosition = new Vector2(placement.row_x(), placement.row_y(offset));
+            float margin_x = Math.Max(0f, viewport_width - row.rect.sizeDelta.x - 12f);
+            float row_x = Math.Clamp(placement.row_x(), -margin_x, margin_x);
+            float row_y = placement.is_top ? -margin_y - offset : margin_y + offset;
+            row.rect.anchoredPosition = new Vector2(row_x, row_y);
             row.text.alignment = placement.anchor_x switch
             {
                 0f => TextAlignmentOptions.Left,

@@ -12,7 +12,7 @@ using Il2CppScheduleOne.Vehicles;
 using MelonLoader;
 using UnityEngine;
 
-[assembly: MelonInfo(typeof(DeathNotices.Main), "Death Notices", "0.5.1", "holyfurries")]
+[assembly: MelonInfo(typeof(DeathNotices.Main), "Death Notices", "0.5.2", "holyfurries")]
 [assembly: MelonGame("TVGS", "Schedule I")]
 
 namespace DeathNotices;
@@ -56,6 +56,7 @@ public sealed class Main : MelonMod
         ModSettings.Settings.dropdown("Death Notices", "Notice position", notice_position);
         ModSettings.Settings.slider("Death Notices", "Side margin", notice_margin_x, minimum: 0f, maximum: 600f, whole_numbers: true);
         ModSettings.Settings.slider("Death Notices", "Top or bottom margin", notice_margin_y, minimum: 0f, maximum: 900f, whole_numbers: true);
+        ModSettings.Settings.button("Death Notices", "Preview notices", "Preview", preview_notices);
         notice_position.OnEntryValueChanged.Subscribe((_, _) => place_notices());
         notice_margin_x.OnEntryValueChanged.Subscribe((_, _) => place_notices());
         notice_margin_y.OnEntryValueChanged.Subscribe((_, _) => place_notices());
@@ -114,10 +115,10 @@ public sealed class Main : MelonMod
 
     public override void OnUpdate()
     {
-        if (!ready) return;
         try
         {
             if (!feed_failed) NoticeFeed.update(Time.unscaledTime);
+            if (!ready) return;
             if (Time.unscaledTime < next_tick_seconds) return;
             next_tick_seconds = Time.unscaledTime + 0.25f;
             bool host = InstanceFinder.IsServer;
@@ -175,6 +176,13 @@ public sealed class Main : MelonMod
             }
         }
         if (NotificationsManager.InstanceExists) NotificationsManager.Instance.SendNotification(title, message, null, 6f, false);
+    }
+
+    private static void preview_notices()
+    {
+        show_notice("Preview", DeathTracker.format_notice("Alex", new DeathCause(DeathKind.Gunshot, "police", false, AttackerKind.Police), 1, 0));
+        show_notice("Preview", DeathTracker.format_notice("Sam", new DeathCause(DeathKind.Melee, "Riley", false, AttackerKind.Player), 1, 0));
+        show_notice("Preview", "A player with a particularly long name discovered that this message wraps to fit the available space.");
     }
 
     private static PlayerState? get_player(Player player)
